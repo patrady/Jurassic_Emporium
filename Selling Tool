@@ -1,0 +1,319 @@
+package jurassic_emporium;
+
+import java.util.*;
+import java.util.List;
+import java.util.Arrays;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class Jurassic_Emporium {
+
+    public class Grid_Point {
+
+        public int row, column;
+        public String type;
+    }
+
+    public class Dinosaur_Bone {
+
+        public double Age, Price, Weight;
+        public String Condition, Origin_Country, Prospector, Name;
+        public int X_Coordinate, Y_Coordinate, ID_Num, Latitude, Longitude;
+        public ArrayList<Dinosaur_Bone> Known_Bones = new ArrayList<Dinosaur_Bone>();
+        public boolean is_sold;
+
+        private int Find_X_Cord(int latitude) {
+            return latitude / 9;
+        }
+
+        private int Find_Y_Cord(int longitude) {
+            return longitude / 6;
+        }
+    }
+
+    public class Selling_Menu {
+
+        List<Dinosaur_Bone> Bone_List;
+        List<Grid_Point> Map_Data_List;
+
+        Formatter outfile = new Formatter(System.out);
+        Scanner infile = new Scanner(System.in);
+
+        public Selling_Menu() {
+            Bone_List = new ArrayList<Dinosaur_Bone>();
+            Map_Data_List = new ArrayList<Grid_Point>();
+        }
+
+        public void Menu() {
+            outfile.format("1) Load the World Map\n");
+            outfile.format("2) Handle a Dinosaur Bone\n");
+            outfile.format("3) Show the World Map with Dinosaur Bones\n");
+            outfile.format("4) Save Files\n");
+            outfile.format("5) Load Files\n");
+            outfile.format("6) Exit Application\n>");
+            int selection = infile.nextInt();
+            switch (selection) {
+                case 1:
+                    Load_World_Map();
+                    break;
+                case 2:
+                    Handle_Bone();
+                    break;
+                case 3:
+                    Show_World_Map();
+                    break;
+                case 4:
+                    Save_Files();
+                    break;
+                case 5:
+                    Load_Files();
+                    break;
+                case 6: return;
+            }
+            Menu();
+        }
+
+        private List<Grid_Point> Load_World_Map() {
+
+            //Initializes a StreamReader object that reads in the map
+            File temp = new File("Map.txt");
+            Scanner read;
+            try {
+                read = new Scanner(temp);
+                Grid_Point grid_temp;
+                String current_line;
+                while (read.hasNextLine()) {
+                    grid_temp = new Grid_Point();
+                    current_line = read.nextLine();
+                    if (current_line != "" && current_line != null)
+                    {
+                        grid_temp.column = Integer.parseInt(current_line.split(",")[0]);
+                        grid_temp.row = Integer.parseInt(current_line.split(",")[1]);
+                        grid_temp.type = current_line.split(",")[2];
+                        Map_Data_List.add(grid_temp);
+                    }
+                }
+                read.close();
+                outfile.format("The Map has Successfully been Loaded!\n");
+
+            } catch (Exception e) {
+                outfile.format("Map.txt Failed to Open!\n");
+            }
+
+            return Map_Data_List;
+        }
+
+        private void Handle_Bone(){
+            //outfile.flush();
+            outfile.format("- - - - - HANDLE A DINOSAUR BONE - - - - -\n");
+            outfile.format("1) Create a Dinosaur Bone\n");
+            outfile.format("2) Update a Dinosaur Bone\n");
+            outfile.format("3) Remove a Dinosaur Bone\n");
+            outfile.format(">");
+            int selection = infile.nextInt();
+            switch (selection) {
+                case 1:
+                    Create_Bone();
+                    break;
+                case 2:
+                    Update_Bone();
+                    break;
+                case 3:
+                    Remove_Bone();
+                    break;
+            }
+        }
+
+        private void Create_Bone() {
+
+            Dinosaur_Bone new_bone = new Dinosaur_Bone();
+            outfile.flush();
+            outfile.format("- - - - - CREATE A DINOSAUR BONE - - - - - \n");
+            outfile.format("Please Input the Name of the Bone (Ex: T-Rex Bone)\n>");
+            infile.nextLine();
+            new_bone.Name = infile.nextLine();
+            outfile.format("Please Input the Longitude (Ex: 156)\n>");
+            new_bone.Longitude = infile.nextInt();
+            outfile.format("Please Input the Latitude (Ex: -40)\n>");
+            new_bone.Latitude = infile.nextInt();
+            outfile.format("Please Input the Price [$]\n>");
+            new_bone.Price = infile.nextDouble();
+            outfile.format("Please Input the Identification Number (Ex: 0675)\n>");
+            new_bone.ID_Num = infile.nextInt();
+
+            Bone_List.add(new_bone);
+            outfile.format("Bone was Successfully Added!\n");
+            
+        }
+
+        private void Update_Bone() {
+            outfile.flush();
+            outfile.format("- - - - - - UPDATE A DINOSAUR BONE - - - - - \n");
+            
+            if (Bone_List.size() < 1)
+            { outfile.format("No Dinosaur Bones Exist!\n"); return; }
+            
+            for (int i = 0; i < Bone_List.size(); i++) {
+                outfile.format((i + 1) + ") " + Bone_List.get(i).Name + ", ID #" + Bone_List.get(i).ID_Num + "\n");              
+            }
+            outfile.format("\nPlease Type the Letter of the Desired Dinosaur Bone to Update or Press 0 to Quit\n>");
+            int selection = infile.nextInt();
+
+            if (selection > 0 && selection <= Bone_List.size()) {
+                outfile.format("- - - - - UPDATING %s - - - - - \n", Bone_List.get(selection - 1).Name);
+                do
+                { 
+                    outfile.format("Please Input the Longitude (Ex: 156)\nChange %d* to: ", Bone_List.get(selection - 1).Longitude);
+                    Bone_List.get(selection - 1).Longitude = infile.nextInt();
+                } while (Bone_List.get(selection - 1).Longitude > 0 && Bone_List.get(selection - 1).Longitude < 91);
+                
+                do
+                {
+                    outfile.format("Please Input the Latitude (Ex: -40)\nChange %d* to: ", Bone_List.get(selection - 1).Latitude);
+                    Bone_List.get(selection - 1).Latitude = infile.nextInt();    
+                } while (Bone_List.get(selection - 1).Latitude > 0 && Bone_List.get(selection - 1).Longitude < 91);
+                
+                outfile.format("Please Input the Price [$]\nChange %f to: ", Bone_List.get(selection - 1).Price);
+                Bone_List.get(selection - 1).Price = infile.nextDouble();
+                
+                outfile.format("%s has been updated!", Bone_List.get(selection - 1).Name);
+            } else if (selection > 0) {
+                outfile.format("Invalid Input! Please Type a Correct Number.");
+                Update_Bone();
+            }
+        }
+
+        private void Remove_Bone() {
+            outfile.flush();
+            outfile.format("- - - - - REMOVE A DINOSAUR BONE - - - - -\n");
+            for (int i = 0; i < Bone_List.size(); i++) {
+                outfile.format(i + 1 + ") " + Bone_List.get(i).Name + ", ID #" + Bone_List.get(i).ID_Num + "\n");
+            }
+
+            outfile.format("Please Type the Letter of the Desired Dinosaur Bone to Remove or Press 0 to Quit:\n>");
+            int selection = infile.nextInt();
+
+            if (selection > 0 && selection <= Bone_List.size()) {
+                Bone_List.remove(Bone_List.get(selection - 1));
+            } else if (selection != 0) {
+                outfile.format("Invalid Input! Please Type a Correct Number.\n");
+                Remove_Bone();
+            }
+            
+            outfile.format("%s has been removed!", Bone_List.get(selection - 1).Name);
+        }
+
+        private void Show_World_Map() {
+            //Ensures that the Map has been loaded
+            Map_Data_List.clear(); //in case updates have been made since last load
+            Map_Data_List = Load_World_Map();
+
+            //First has to find the dimensions of the map
+            int max_col = 0, max_row = 0;
+            for (int i = 0; i < Map_Data_List.size(); i++) {
+                if (Map_Data_List.get(i).column >= max_col) {
+                    max_col = Map_Data_List.get(i).column;
+                }
+                if (Map_Data_List.get(i).row >= max_row) {
+                    max_row = Map_Data_List.get(i).row;
+                }
+            }
+
+            //Updates the World Map List to Include Dinosaur Bones
+            for (int i = 0; i < Bone_List.size(); i++) {
+                int index = Bone_List.get(i).Y_Coordinate * max_col + Bone_List.get(i).X_Coordinate;
+                if (Bone_List.get(i).is_sold) {
+                    Map_Data_List.get(index).type = "$";
+                } else {
+                    Map_Data_List.get(index).type = "X";
+                }
+            }
+
+            //Writes the Map to a File
+            File temp = new File("World_Map.txt");
+            Formatter write;
+            try {
+                write = new Formatter(temp);
+                for (int i = 0; i <= max_row; i++) {
+                    for (int x = 0; x <= max_col; x++) {
+                        //write.format(Map_Data_List.get(i * max_col + x).type);
+                        if (Map_Data_List.get(i * max_col + x).type.equalsIgnoreCase("1"))
+                            write.format("*");
+                        else
+                            write.format(".");
+                            
+                    }
+                    write.format("\r\n");
+                }
+                write.close();
+            } catch (Exception e) {
+                outfile.format("Failed to open");
+            }
+            
+            //Opens the File for the user to see
+            ProcessBuilder pb = new ProcessBuilder("Notepad.exe", "World_Map.txt");
+            try {
+                pb.start();
+            } catch (IOException ex) {
+                Logger.getLogger(Jurassic_Emporium.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        }
+
+        private void Save_Files() {
+            File temp = new File("Saved_Bones.txt");
+            Formatter write;
+            try {
+                write = new Formatter(temp);
+                for (int i = 0; i < Bone_List.size(); i++) {
+                    write.format(Bone_List.get(i).Name + "," + Bone_List.get(i).Longitude + "," + Bone_List.get(i).Latitude + "," + Bone_List.get(i).Price + ","
+                            + Bone_List.get(i).ID_Num + Bone_List.get(i).is_sold);
+                }
+                write.close();
+            } catch (Exception e) {
+                outfile.format("Failed to Write File");
+            }
+        }
+
+        private void Load_Files() {
+
+            File temp = new File("Saved_Bones.txt");
+            Scanner read;
+            try {
+                read = new Scanner(temp);
+                Dinosaur_Bone bone_temp;
+                Bone_List.clear();
+                String current_line;
+                while (read.hasNextLine()) {
+                    bone_temp = new Dinosaur_Bone();
+                    current_line = read.nextLine();
+                    bone_temp.Name = current_line.split(",")[0];
+                    bone_temp.Longitude = Integer.parseInt(current_line.split(",")[1]);
+                    bone_temp.Latitude = Integer.parseInt(current_line.split(",")[2]);
+                    bone_temp.Price = Double.parseDouble(current_line.split(",")[3]);
+                    bone_temp.ID_Num = Integer.parseInt(current_line.split(",")[4]);
+                    bone_temp.is_sold = Boolean.parseBoolean(current_line.split(",")[5]);
+                    Bone_List.add(bone_temp);
+                }
+                read.close();
+            } catch (Exception e) {
+                outfile.format("Failed to open Saved_Bones.txt");
+            }
+        }
+        
+    }
+
+    public static void main(String[] args) {
+        Jurassic_Emporium Start_Prog = new Jurassic_Emporium();
+        Start_Prog.Start();
+    }
+    
+    public void Start()
+    {
+        Selling_Menu Begin = new Selling_Menu();
+        Begin.Menu();
+    }
+
+}

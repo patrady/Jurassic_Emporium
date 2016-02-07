@@ -393,5 +393,14 @@ public class Jurassic_Emporium {
         Selling_Menu Begin = new Selling_Menu();
         Begin.Menu();
     }
-
 }
+
+//How to Read Saved Bones in from my text file
+//The following code is copied from line #346
+/*  write.format(Bone_List.get(i).Name + "," + Bone_List.get(i).Longitude + "," + Bone_List.get(i).Latitude + "," + Bone_List.get(i).Price + ","
+        + Bone_List.get(i).ID_Num + "," + Bone_List.get(i).is_sold + "\r\n");
+    //this code writes the saved bones to a text file named "Saved_Bones.txt", you will need to read the information in in the following format
+    //Name,Longitude,Latitude,Price,ID_Num,is_sold
+    //Ex: DinoBone1,50,180,512.21,123456,true
+    //Ex: DinoBone2,84,68,123.87,124,false
+    */

@@ -21,15 +21,48 @@ public class Jurassic_Emporium {
         public double Age, Price, Weight;
         public String Condition, Origin_Country, Prospector, Name;
         public int X_Coordinate, Y_Coordinate, ID_Num, Latitude, Longitude;
-        public ArrayList<Dinosaur_Bone> Known_Bones = new ArrayList<Dinosaur_Bone>();
         public boolean is_sold;
 
-        private int Find_X_Cord(int latitude) {
-            return latitude / 9;
+        private void Find_X_Cord() {
+            if (Longitude <= 0)
+            {
+                for (int i = 0; i < 18; i++)
+                {
+                    if (Longitude * -1 < ((6 * i) - 3))
+                        {X_Coordinate = 31 - i; break; }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 18; i++)
+                {
+                    if (Longitude < (((180 / 29.0) * i) - (180 / 29 / 2.0)))
+                    {X_Coordinate = 29 + i; break; }
+                    else if (i == 17)
+                        X_Coordinate = 59;
+                }
+            } 
         }
 
-        private int Find_Y_Cord(int longitude) {
-            return longitude / 6;
+        private void Find_Y_Cord() {
+            if (Latitude <= 0)
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    if (Latitude * -1 < ((9 * i) - (9 / 2.0)))
+                        {Y_Coordinate = 8 + i; break; }
+                    else if (i == 9)
+                        Y_Coordinate = 19;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    if (Latitude < ((10 * i) - 5))
+                    {Y_Coordinate = 10 - i; break; }
+                }
+            } 
         }
     }
 
@@ -37,6 +70,7 @@ public class Jurassic_Emporium {
 
         List<Dinosaur_Bone> Bone_List;
         List<Grid_Point> Map_Data_List;
+        String Shop_Name;
 
         Formatter outfile = new Formatter(System.out);
         Scanner infile = new Scanner(System.in);
@@ -52,7 +86,8 @@ public class Jurassic_Emporium {
             outfile.format("3) Show the World Map with Dinosaur Bones\n");
             outfile.format("4) Save Files\n");
             outfile.format("5) Load Files\n");
-            outfile.format("6) Exit Application\n>");
+            outfile.format("6) Change Shop Name\n");
+            outfile.format("7) Exit Application\n>");
             int selection = infile.nextInt();
             switch (selection) {
                 case 1:
@@ -70,9 +105,12 @@ public class Jurassic_Emporium {
                 case 5:
                     Load_Files();
                     break;
-                case 6: return;
+                case 6:
+                    Change_Shop_Name();
+                    break;
+                case 7: return;
             }
-            Menu();
+            outfile.format("\u000C"); Menu();
         }
 
         private List<Grid_Point> Load_World_Map() {
@@ -95,6 +133,10 @@ public class Jurassic_Emporium {
                         Map_Data_List.add(grid_temp);
                     }
                 }
+                
+                //Checks the Shop Name
+                if (Shop_Name.equals(null))
+                    Shop_Name = "Jurassic Emporium";
                 read.close();
                 outfile.format("The Map has Successfully been Loaded!\n");
 
@@ -142,6 +184,12 @@ public class Jurassic_Emporium {
             new_bone.Price = infile.nextDouble();
             outfile.format("Please Input the Identification Number (Ex: 0675)\n>");
             new_bone.ID_Num = infile.nextInt();
+            
+            //Updates the Coordinates
+            new_bone.Find_X_Cord();
+            outfile.format("X Coordinate: %d\n", new_bone.X_Coordinate);
+            new_bone.Find_Y_Cord();
+            outfile.format("Y_Coordinate: %d\n", new_bone.Y_Coordinate);
 
             Bone_List.add(new_bone);
             outfile.format("Bone was Successfully Added!\n");
@@ -167,22 +215,25 @@ public class Jurassic_Emporium {
                 { 
                     outfile.format("Please Input the Longitude (Ex: 156)\nChange %d* to: ", Bone_List.get(selection - 1).Longitude);
                     Bone_List.get(selection - 1).Longitude = infile.nextInt();
-                } while (Bone_List.get(selection - 1).Longitude > 0 && Bone_List.get(selection - 1).Longitude < 91);
+                } while (Bone_List.get(selection - 1).Longitude < 0 || Bone_List.get(selection - 1).Longitude > 90);
                 
                 do
                 {
                     outfile.format("Please Input the Latitude (Ex: -40)\nChange %d* to: ", Bone_List.get(selection - 1).Latitude);
                     Bone_List.get(selection - 1).Latitude = infile.nextInt();    
-                } while (Bone_List.get(selection - 1).Latitude > 0 && Bone_List.get(selection - 1).Longitude < 91);
+                } while (Bone_List.get(selection - 1).Latitude < 0 || Bone_List.get(selection - 1).Longitude > 90);
                 
-                outfile.format("Please Input the Price [$]\nChange %f to: ", Bone_List.get(selection - 1).Price);
+                outfile.format("Please Input the Price [$]\nChange %0.2f to: ", Bone_List.get(selection - 1).Price);
                 Bone_List.get(selection - 1).Price = infile.nextDouble();
                 
-                outfile.format("%s has been updated!", Bone_List.get(selection - 1).Name);
+                outfile.format("%s has been updated!\n", Bone_List.get(selection - 1).Name);
             } else if (selection > 0) {
-                outfile.format("Invalid Input! Please Type a Correct Number.");
+                outfile.format("Invalid Input! Please Type a Correct Number.\n");
                 Update_Bone();
             }
+            
+            //Update Coordinates
+            
         }
 
         private void Remove_Bone() {
@@ -194,15 +245,16 @@ public class Jurassic_Emporium {
 
             outfile.format("Please Type the Letter of the Desired Dinosaur Bone to Remove or Press 0 to Quit:\n>");
             int selection = infile.nextInt();
-
+            String deleted_dino_name = null;
             if (selection > 0 && selection <= Bone_List.size()) {
+                deleted_dino_name = Bone_List.get(selection - 1).Name;
                 Bone_List.remove(Bone_List.get(selection - 1));
             } else if (selection != 0) {
                 outfile.format("Invalid Input! Please Type a Correct Number.\n");
                 Remove_Bone();
             }
             
-            outfile.format("%s has been removed!", Bone_List.get(selection - 1).Name);
+            outfile.format("%s has been removed!\n", deleted_dino_name);
         }
 
         private void Show_World_Map() {
@@ -236,17 +288,33 @@ public class Jurassic_Emporium {
             Formatter write;
             try {
                 write = new Formatter(temp);
+                write.format("- - - - - - - - " + Shop_Name + " - - - - - - - -\r\n");
                 for (int i = 0; i <= max_row; i++) {
                     for (int x = 0; x <= max_col; x++) {
-                        //write.format(Map_Data_List.get(i * max_col + x).type);
+                        if (x == 30)
+                            write.format("|");
                         if (Map_Data_List.get(i * max_col + x).type.equalsIgnoreCase("1"))
                             write.format("*");
+                        else if (Map_Data_List.get(i * max_col +x).type.equalsIgnoreCase("X"))
+                            write.format("X");
+                        else if (Map_Data_List.get(i * max_col +x).type.equalsIgnoreCase("$"))
+                            write.format("$");
                         else
                             write.format(".");
-                            
                     }
                     write.format("\r\n");
+                    if (i == 10)
+                    { 
+                        for (int x = 0; x <= max_col; x++)
+                        {
+                            if (x == 30) write.format("|");
+                            write.format("-");
+                        }
+                        write.format(" Equator");
+                        write.format("\r\n");
+                    }
                 }
+                write.format("                         Prime Meridian");
                 write.close();
             } catch (Exception e) {
                 outfile.format("Failed to open");
@@ -261,15 +329,23 @@ public class Jurassic_Emporium {
             }
 
         }
+        
+        private void Change_Shop_Name() {
+            outfile.format("The Current Shop Name is %s\n", Shop_Name);
+            outfile.format("New Shop Name: ");
+            infile.nextLine();
+            Shop_Name = infile.nextLine();
+        }
 
         private void Save_Files() {
             File temp = new File("Saved_Bones.txt");
             Formatter write;
             try {
                 write = new Formatter(temp);
+                write.format(Shop_Name + "\r\n");
                 for (int i = 0; i < Bone_List.size(); i++) {
                     write.format(Bone_List.get(i).Name + "," + Bone_List.get(i).Longitude + "," + Bone_List.get(i).Latitude + "," + Bone_List.get(i).Price + ","
-                            + Bone_List.get(i).ID_Num + Bone_List.get(i).is_sold);
+                            + Bone_List.get(i).ID_Num + Bone_List.get(i).is_sold + "\r\n");
                 }
                 write.close();
             } catch (Exception e) {
@@ -286,6 +362,7 @@ public class Jurassic_Emporium {
                 Dinosaur_Bone bone_temp;
                 Bone_List.clear();
                 String current_line;
+                Shop_Name = read.nextLine();
                 while (read.hasNextLine()) {
                     bone_temp = new Dinosaur_Bone();
                     current_line = read.nextLine();
@@ -295,6 +372,7 @@ public class Jurassic_Emporium {
                     bone_temp.Price = Double.parseDouble(current_line.split(",")[3]);
                     bone_temp.ID_Num = Integer.parseInt(current_line.split(",")[4]);
                     bone_temp.is_sold = Boolean.parseBoolean(current_line.split(",")[5]);
+                    bone_temp.Find_X_Cord(); bone_temp.Find_Y_Cord();
                     Bone_List.add(bone_temp);
                 }
                 read.close();
